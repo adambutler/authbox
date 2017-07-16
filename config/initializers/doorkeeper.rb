@@ -4,19 +4,41 @@ Doorkeeper.configure do
 
   # This block will be called to check whether the resource owner is authenticated or not.
   resource_owner_authenticator do
-    fail "Please configure doorkeeper resource_owner_authenticator block located in #{__FILE__}"
+    # fail "Please configure doorkeeper resource_owner_authenticator block located in #{__FILE__}"
     # Put your resource owner authentication logic here.
     # Example implementation:
-    #   User.find_by_id(session[:user_id]) || redirect_to(new_user_session_url)
-    false || redirect_to(new_user_session_url)
+    # User.find_by_id(session[:user_id]) || redirect_to(new_user_session_url)
+
+    session[:doorkeeper_restore] = {
+      client_id: params[:client_id],
+      redirect_uri: params[:redirect_uri],
+      response_type: params[:response_type],
+      scope: params[:scope],
+    }
+
+    if session[:auth_hash]
+      client = session[:doorkeeper_restore][:client_id]
+      application = Doorkeeper::Application.find_by_uid(client)
+
+      authorized_user = AuthorizedUser.find_by({
+        platform: session[:auth_hash]['provider'],
+        username: session[:auth_hash]['info']['nickname'],
+        application: application,
+      })
+
+      authorized_user ? application.owner : redirect_to(unauthorized_path)
+    else
+       redirect_to(sign_in_path)
+    end
   end
 
   # If you want to restrict access to the web interface for adding oauth authorized applications, you need to declare the block below.
-  # admin_authenticator do
+  admin_authenticator do
   #   # Put your admin authentication logic here.
   #   # Example implementation:
   #   Admin.find_by_id(session[:admin_id]) || redirect_to(new_admin_session_url)
-  # end
+    current_user || redirect_to(new_user_session_path)
+  end
 
   # Authorization Code expiration time (default 10 minutes).
   # authorization_code_expires_in 10.minutes
@@ -50,7 +72,7 @@ Doorkeeper.configure do
   # Optional parameter confirmation: true (default false) if you want to enforce ownership of
   # a registered application
   # Note: you must also run the rails g doorkeeper:application_owner generator to provide the necessary support
-  # enable_application_owner confirmation: false
+  enable_application_owner confirmation: false
 
   # Define access token scopes for your provider
   # For more information go to
