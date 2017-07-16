@@ -1,24 +1,26 @@
-# README
+# Authbox
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+An OAuth 2 provider that allows you to specify authorised users of multiple other OAuth providers.
 
-Things you may want to cover:
+### Prerequisites
 
-* Ruby version
+- Ruby 2.4.x + bundler
+- PostgreSQL
+- GitHub Application
 
-* System dependencies
+## Setup
 
-* Configuration
+```sh
+$ git clone git@github.com:adambutler/authbox.git
+$ cd authbox
+$ cp .env.example .env
+$ rake db:setup
+```
 
-* Database creation
+## Contributing
 
-* Database initialization
+Contributions are welcome, please follow [GitHub Flow](https://guides.github.com/introduction/flow/index.html)
 
-* How to run the test suite
+## License
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+See the `LICENSE.txt` file for full licenses. The code is licensed under the MIT License; documentation is licensed under both the MIT License and the Creative Commons Attribution 4.0 International license.
